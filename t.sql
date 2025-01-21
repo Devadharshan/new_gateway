@@ -1,27 +1,29 @@
+CREATE VIEW v_task_with_request AS
 SELECT
-    task.number AS task_number,                 -- Task number
-    task.short_description,                    -- Short description of the task
-    task.catalog_type AS catalog_item,         -- Catalog item of the ticket
-    task.close_notes,                          -- Close notes field
-    task.assigned_to,                          -- Assigned to user
-    task.assignment_group,                     -- Assignment group responsible
-    task.sys_created_on AS opened_at,          -- When the ticket was opened
-    task.closed_at,                            -- When the ticket was closed
-    task.requester AS request_number,          -- Request number
+    vt.number_ AS task_number,                 -- Task number
+    vt.short_description,                     -- Short description of the task
+    vt.catalog_type AS catalog_item,          -- Catalog item of the ticket
+    vt.closed_notes AS close_notes,           -- Close notes field
+    vt.assigned_to,                           -- Assigned to user
+    vt.assignment_group,                      -- Assignment group responsible
+    vt.opened_at,                             -- When the ticket was opened
+    vt.closed_at,                             -- When the ticket was closed
+    vt.opened_by,                             -- User who opened the ticket
+    vt.priority,                              -- Priority of the task
+    vt.state_ AS state,                       -- Current state of the task
+    vt.sys_created_by,                        -- User who created the task
+    vt.sys_created_on,                        -- Timestamp when the task was created
+    vt.time_worked,                           -- Total time worked on the task
+    vt.u_tags,                                -- Custom tags associated with the task
+    sr.number AS request_number,              -- Associated request number
     -- Calculated Fields
-    CASE
-        WHEN task.closed_at IS NOT NULL THEN TIMESTAMPDIFF(SECOND, task.sys_created_on, task.closed_at)
-        ELSE NULL
-    END AS time_to_close_seconds,              -- Time to close in seconds
-    CASE
-        WHEN task.closed_at IS NOT NULL THEN TIMESTAMPDIFF(HOUR, task.sys_created_on, task.closed_at) / 24
-        ELSE NULL
-    END AS time_to_close_days,                 -- Time to close in days
-    -- Extracting chapter name from close notes
-    SUBSTRING_INDEX(task.close_notes, ':', 1) AS chapter_name -- Assuming chapter name is before a colon
+    TIMESTAMPDIFF(SECOND, vt.opened_at, vt.closed_at) AS time_to_close_seconds, -- Time to close in seconds
+    TIMESTAMPDIFF(HOUR, vt.opened_at, vt.closed_at) / 24 AS time_to_close_days  -- Time to close in days
 FROM
-    v_task AS task
+    v_task vt
+LEFT JOIN
+    sc_req_item sri ON vt.sys_id = sri.task   -- Join with request item table
+LEFT JOIN
+    sc_request sr ON sri.request = sr.sys_id  -- Join with request table
 WHERE
-    task.assignment_group IN ('GroupA', 'GroupB', 'GroupC') -- Replace with your assignment groups
-    AND task.state IN ('Closed', 'Resolved')               -- Only include closed or resolved tickets
-    AND task.sys_class_name = 'task';                      -- Ensure you're querying tasks
+    vt.sys_class_name = 'task';               -- Ensure you're querying tasks only
