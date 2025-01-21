@@ -24,3 +24,33 @@ LEFT JOIN
     sc_request sr ON sri.request = sr.sys_id  -- Join with request table
 WHERE
     vt.sys_class_name = 'task';               -- Ensure you're querying tasks only
+
+
+
+
+SELECT
+    vt.number AS task_number,                      -- Task number
+    vt.state_ AS state,                           -- Task state
+    vt.assignment_group,                          -- Assignment group
+    vt.assigned_to,                               -- Assigned user
+    vt.opened_at,                                 -- When the task was opened
+    vt.priority,                                  -- Task priority
+    vt.short_description,                         -- Task short description
+    vt.reassignment_count AS times_reassigned,    -- Times the task was reassigned
+    vt.closed_at,                                 -- When the task was closed
+    vt.sys_updated_on,                            -- Last updated timestamp
+    vt.sys_created_on,                            -- Created timestamp
+    vt.u_reopened_count,                          -- Reopened count
+    vt.active,                                    -- Task active status
+    vt.cmdb_ci,                                   -- Configuration item
+    vt.closed_notes,                              -- Close notes field
+    vt.catalog_type AS catalog_item,              -- Catalog item field
+    sr.number AS request_number                   -- Associated request number
+FROM
+    v_task vt
+LEFT JOIN
+    sc_req_item sri ON vt.sys_id = sri.task        -- Join v_task with sc_req_item
+LEFT JOIN
+    sc_request sr ON sri.request = sr.sys_id       -- Join sc_req_item with sc_request
+WHERE
+    vt.sys_created_on > DATEADD(YY, -3, GETDATE()) -- Filter tasks from the last 3 years
