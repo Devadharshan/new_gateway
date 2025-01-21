@@ -1,3 +1,38 @@
+SELECT
+    vt.number_ AS task_number,                   -- Task number
+    vt.state_ AS state,                          -- Task state
+    vt.assignment_group,                         -- Assignment group
+    vt.assigned_to,                              -- Assigned user
+    vt.opened_at,                                -- When the task was opened
+    vt.priority,                                 -- Task priority
+    vt.short_description,                        -- Task short description
+    vt.reassignment_count AS times_reassigned,   -- Times the task was reassigned
+    vt.closed_at,                                -- When the task was closed
+    vt.sys_updated_on,                           -- Last updated timestamp
+    vt.sys_created_on,                           -- Created timestamp
+    vt.u_reopened_count,                         -- Reopened count
+    vt.active,                                   -- Task active status
+    vt.cmdb_ci,                                  -- Configuration item
+    vt.closed_notes,                             -- Close notes field
+    sri.cat_item AS catalog_item,                -- Catalog item from sc_req_item
+    sr.number AS request_number                  -- Request number from sc_request
+FROM
+    v_task vt
+LEFT JOIN
+    sc_request sr ON vt.sys_id = sr.sys_id        -- Join v_task with sc_request (if possible)
+LEFT JOIN
+    sc_req_item sri ON sr.sys_id = sri.request    -- Join sc_request with sc_req_item
+WHERE
+    vt.sys_created_on > DATEADD(YY, -3, GETDATE())  -- Filter tasks from the last 3 years
+
+
+
+
+
+
+
+
+
 CREATE VIEW v_task_with_request AS
 SELECT
     vt.number_ AS task_number,         -- Task number
