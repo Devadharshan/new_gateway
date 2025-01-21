@@ -1,4 +1,30 @@
 SELECT
+    vt.number_ AS task_number,                  -- Task number
+    vt.state_ AS task_state,                   -- Task state
+    vt.assignment_group,                       -- Assignment group
+    vt.assigned_to,                            -- Assigned user
+    vt.opened_at,                              -- Task open time
+    vt.closed_at,                              -- Task close time
+    DATEDIFF(HOUR, vt.opened_at, vt.closed_at) AS time_to_close_hours,  -- Time to close
+    vt.closed_notes,                           -- Close notes
+    vt.short_description,                      -- Task short description
+    sri.cat_item AS catalog_item,              -- Catalog item
+    sr.number AS request_number                -- Request number
+FROM
+    v_task vt
+LEFT JOIN
+    sc_req_item sri ON vt.sys_id = sri.task    -- Join sc_req_item via task reference
+LEFT JOIN
+    sc_request sr ON sri.request = sr.sys_id   -- Join sc_request for request number
+WHERE
+    vt.sys_created_on > DATEADD(YY, -3, GETDATE())  -- Last 3 years
+
+
+
+
+
+
+SELECT
     vt.number_ AS task_number,                   -- Task number
     vt.state_ AS state,                          -- Task state
     vt.assignment_group,                         -- Assignment group
