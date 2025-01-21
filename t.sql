@@ -10,11 +10,11 @@ SELECT
     task.requester AS request_number,          -- Request number
     -- Calculated Fields
     CASE
-        WHEN task.closed_at IS NOT NULL THEN TIMESTAMPDIFF(SECOND, task.opened_at, task.closed_at)
+        WHEN task.closed_at IS NOT NULL THEN TIMESTAMPDIFF(SECOND, task.sys_created_on, task.closed_at)
         ELSE NULL
     END AS time_to_close_seconds,              -- Time to close in seconds
     CASE
-        WHEN task.closed_at IS NOT NULL THEN TIMESTAMPDIFF(DAY, task.opened_at, task.closed_at)
+        WHEN task.closed_at IS NOT NULL THEN TIMESTAMPDIFF(HOUR, task.sys_created_on, task.closed_at) / 24
         ELSE NULL
     END AS time_to_close_days,                 -- Time to close in days
     -- Extracting chapter name from close notes
